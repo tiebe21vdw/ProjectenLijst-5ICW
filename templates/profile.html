@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="profile-page">
+    <div class="profile-header">
+        <h2>Jouw Profiel</h2>
+        <p>Hier kun je je gegevens inzien en aanpassen.</p>
+    </div>
+
+    <form action="/profile" method="post" class="profile-form">
+        {% if error %}
+            <p class="error-message">{{ error }}</p>
+        {% endif %}
+        {% if success %}
+            <p class="success-message">{{ success }}</p>
+        {% endif %}
+
+        <div class="input-group">
+            <label><strong>E-mailadres (kan niet gewijzigd worden):</strong></label>
+            <input type="email" value="{{ user['email'] }}" disabled>
+        </div>
+
+        <div class="input-group">
+            <label><strong>Naam aanpassen:</strong></label>
+            <input type="text" name="name" value="{{ user['name'] }}" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Wijzigingen opslaan</button>
+    </form>
+
+    <div class="profile-theme-panel">
+        <h3>Kies je kleuren thema</h3>
+        <form action="{{ url_for('set_theme') }}" method="post" class="theme-form">
+            <select id="theme-select" name="theme" onchange="this.form.submit()">
+                <option value="light" {% if theme_class == 'light' %}selected{% endif %}>Licht</option>
+                <option value="dark" {% if theme_class == 'dark' %}selected{% endif %}>Donker</option>
+                <option value="ocean" {% if theme_class == 'ocean' %}selected{% endif %}>Oceaan</option>
+                <option value="soft-nature" {% if theme_class == 'soft-nature' %}selected{% endif %}>Zacht - Natuur</option>
+                <option value="sunset" {% if theme_class == 'sunset' %}selected{% endif %}>Zonsondergang</option>
+                <option value="frosted-ice" {% if theme_class == 'frosted-ice' %}selected{% endif %}>Gefroste IJs</option>
+                <option value="coffee" {% if theme_class == 'coffee' %}selected{% endif %}>Koffie</option>
+            </select>
+        </form>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="alert-card alert-danger">
+        <h3>Verwijder Account</h3>
+        <p class="muted small">Als je je account verwijdert, worden al je gegevens permanent gewist uit het systeem. Dit kan niet ongedaan worden gemaakt.</p>
+        <form action="/profile/delete_own_account" method="post" onsubmit="return confirm('Weet je het ABSOLUUT zeker? Je account wordt permanent gewist.');">
+            <button type="submit" class="btn btn-danger small">Mijn account permanent wissen</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

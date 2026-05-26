@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projecten</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body class="{{ theme_class }}">
+
+    <header>
+        <nav>
+            <a href="{{ url_for('index') }}" class="nav-logo">Home</a>
+
+            <div class="nav-links">
+                {% if session.user_id %}
+                    <span>Ingelogd als: <a href="/profile" class="profile-link"><strong>{{ session.user_name }}</strong></a></span>
+        
+                    <a href="{{ url_for('upload_project') }}" class="btn btn-success">Upload Project</a>
+
+                    {% if session.user_role == 'admin' %}
+                        <a href="/admin/dashboard" class="btn btn-accent">🛠️ Admin Paneel</a>
+                    {% endif %}
+        
+                    <a href="{{ url_for('logout') }}" class="btn btn-ghost">Uitloggen</a>
+                {% else %}
+                    <span class="badge-guest">Modus: Gast</span>
+                    <a href="{{ url_for('login') }}" class="nav-link">Inloggen</a>
+                    <a href="{{ url_for('register') }}" class="nav-link">Registreren</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+             {% if messages %}
+                <div class="flash-messages-container">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</body>
+</html>

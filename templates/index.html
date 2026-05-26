@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <h2>Eindproject hub voor 5ICW</h2>
+    <p class="muted">Het officiële overzicht van alle ingeleverde eindprojecten en websites.</p>
+
+    {% if session.user_role == 'admin' %}
+        <div class="admin-notice">
+            <h3>Admin Opmerking:</h3>
+            <p>Als admin zie je hier alle projecten, inclusief die van andere gebruikers. Je hebt de mogelijkheid om projecten te verwijderen als ze niet aan de richtlijnen voldoen of ongepast zijn.</p>
+        </div>
+    {% endif %}
+
+    <h3>Ingezonden Projecten</h3>
+    
+    {% if projecten %}
+        <div class="projects-grid">
+            {% for project in projecten %}
+            <div class="project-card">
+                    
+                    <div>
+                        <div class="project-card-header">
+                            <h4>{{ project['title'] }}</h4>
+                            <span class="project-visibility-pill {{ 'visibility-admin' if (project['visibility'] or 'public') == 'admin' else 'visibility-public' }}">
+                                {% if (project['visibility'] or 'public') == 'admin' %}Alleen admin{% else %}Iedereen{% endif %}
+                            </span>
+                        </div>
+
+                        <p class="project-meta">Student: {{ project['creator_name'] }}</p>
+
+                        <p class="project-desc">{{ project['description'] }}</p>
+
+                        {% if project['admin_comment'] %}
+                            <div class="project-admin-comment">
+                                <strong>Admin-opmerking:</strong>
+                                <p>{{ project['admin_comment'] }}</p>
+                            </div>
+                        {% endif %}
+
+                        {% if session.user_role == 'admin' %}
+                            <form action="{{ url_for('project_comment', project_id=project['id']) }}" method="post" class="project-comment-form">
+                                <textarea name="comment" placeholder="Admin-commentaar toevoegen...">{{ project['admin_comment'] or '' }}</textarea>
+                                <button type="submit" class="btn btn-accent small">Opslaan</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="project-actions">
+                        {% if project['link'] %}
+                            <a href="{{ project['link'] }}" target="_blank" class="link-primary">Bezoek website ↗</a>
+                        {% else %}
+                            <span class="muted small italic">Geen link beschikbaar</span>
+                        {% endif %}
+
+                        {% if session.user_id and (project['user_id'] == session.user_id or session.user_role == 'admin') %}
+                            <form action="{{ url_for('delete_project', project_id=project['id']) }}" method="post" onsubmit="return confirm('Weet je zeker dat je dit project wilt verwijderen?');" class="inline-form">
+                                <button type="submit" class="btn btn-danger small">
+                                    Verwijderen
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted italic">Er zijn momenteel nog geen eindprojecten ingeleverd door de leerlingen.</p>
+    {% endif %}
+
+{% endblock %}

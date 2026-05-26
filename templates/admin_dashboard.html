@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>🛠️ Leerkracht Dashboard (Klasbeheer)</h2>
+<p>Hieronder vind je de lijst met alle geregistreerde leerlingen. Je kunt hier accounts beheren of eventueel foutieve aanmeldingen verwijderen.</p>
+
+<table border="1" style="width: 100%; border-collapse: collapse; margin-top: 20px; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 10px;">ID</th>
+            <th style="padding: 10px;">Naam</th>
+            <th style="padding: 10px;">E-mailadres</th>
+            <th style="padding: 10px;">Rol</th>
+            <th style="padding: 10px;">Geverifieerd?</th>
+            <th style="padding: 10px;">Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for gebruiker in gebruikers %}
+        <tr>
+            <td style="padding: 10px;">{{ gebruiker['id'] }}</td>
+            <td style="padding: 10px;">{{ gebruiker['name'] }}</td>
+            <td style="padding: 10px;">{{ gebruiker['email'] }}</td>
+            <td style="padding: 10px;">
+                <span class="role-badge role-{{ gebruiker['role'] }}">
+                    {{ gebruiker['role'] }}
+                </span>
+            </td>
+            <td style="padding: 10px;">
+                {% if gebruiker['verified'] == 1 %} <p style="color: green;">Ja</p> {% else %} <p style="color: red;">Nee</p> {% endif %}
+            </td>
+            <td style="padding: 10px;">
+                {% if gebruiker['id'] != session['user_id'] %}
+                    <form action="{{ url_for('admin_delete_user', user_id=gebruiker['id']) }}" method="post" onsubmit="return confirm('Weet je zeker dat je deze gebruiker wilt verwijderen?');" style="margin:0;">
+                        <button type="submit" style="background-color: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Verwijderen</button>
+                    </form>
+                {% else %}
+                    <span style="color: #7f8c8d; font-style: italic;">Jijzelf</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

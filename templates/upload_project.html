@@ -1,0 +1,46 @@
+{%- extends "layout.html" -%}
+
+{%- block content -%}
+    {% if session.user_role == 'user' %}
+    <h2>Project Inleveren</h2>
+    <div class="user-projects-box">
+        <h3>Lever jouw Eindproject in</h3>
+        <p class="muted">Vul de gegevens van jouw website in om deze toe te voegen aan de klassengalerij op de homepagina.</p>
+        
+        <form action="{{ url_for('upload_project') }}" method="post" class="admin-form">
+            <input type="text" name="title" placeholder="Titel van jouw eindproject" required>
+            <textarea name="description" placeholder="Leg kort uit wat jouw website doet en welke backend/frontend technieken (bijv. Flask, SQLite) je hebt gebruikt..." required></textarea>
+            <input type="url" name="link" placeholder="Live URL naar jouw website (bijv. http://localhost:5000 of je hosting link)">
+            <div class="input-group">
+                <label>Wie kan dit project zien?</label>
+                <select name="visibility">
+                    <option value="public">Iedereen</option>
+                    <option value="admin">leerkracht</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Project indienen</button>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if session.user_role == 'admin' %}
+        <h2>Project Uploaden</h2>
+        <div class="admin-panel">
+            <h3>Upload een project</h3>
+            <p class="muted small">Als beheerder kun je hier eventueel zelf een voorbeeldproject of mededeling live zetten.</p>
+            <form action="{{ url_for('upload_project') }}" method="post" class="admin-form">
+                <input type="text" name="title" placeholder="Naam van het project / de website" required>
+                <textarea name="description" placeholder="Korte toelichting of beoordelingscriteria..." required></textarea>
+                <input type="url" name="link" placeholder="URL naar de live website (optioneel)">
+                <div class="input-group">
+                    <label>Wie kan dit project zien?</label>
+                    <select name="visibility">
+                        <option value="public">Iedereen</option>
+                        <option value="admin">leerkracht</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-accent">Project indienen</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}
