@@ -30,6 +30,18 @@
 
                         <p class="project-desc">{{ project['description'] }}</p>
 
+
+                        <div class="Ai-feedback">
+                            <strong style="color: var(--text);">🤖 AI Assistent Beoordeling:</strong> 
+                            <span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.85em; font-weight: bold; margin-left: 5px;">
+                                {{ project['ai_score'] }}/5
+                            </span>
+                            <p style="margin: 5px 0 0 0; font-style: italic; color: var(--muted);">
+                                    "{{ project['ai_feedback'] }}"
+                            </p>
+                        </div>
+
+
                         {% if project['admin_comment'] %}
                             <div class="project-admin-comment">
                                 <strong>Admin-opmerking:</strong>

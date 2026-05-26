@@ -147,6 +147,38 @@ body.ocean header nav {
     font-size:1.05rem;
 }
 
+.Ai-feedback{
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.08) 0%, rgba(155, 89, 182, 0.04) 100%);
+    border-left: 4px solid var(--primary);
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 0.9em;
+    line-height: 1.5;
+    scroll-behavior: smooth;
+}
+
+.Ai-feedback::-webkit-scrollbar {
+    width: 8px;
+}
+
+.Ai-feedback::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+    border-radius: 4px;
+}
+
+.Ai-feedback::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.Ai-feedback::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-light);
+}
+
 .nav-links{display:flex;align-items:center;gap:12px}
 .nav-links a{color:var(--text);text-decoration:none;padding:6px 8px;border-radius:6px}
 .nav-links a:hover{background:var(--glass)}

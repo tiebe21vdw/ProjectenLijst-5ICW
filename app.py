@@ -5,6 +5,9 @@ from email.message import EmailMessage
 from flask import Flask, render_template, request, redirect, session, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
+from google import genai
+
+ai_client = genai.Client(api_key="AIzaSyAWeTxL1pQCZjn1kuVEH3QRRzch-KEJnEU")
 
 app = Flask(__name__)
 app.secret_key = 'super_geheime_sleutel_verander_dit'
@@ -139,37 +142,102 @@ def index():
     return render_template('index.html', username=current_user, is_guest=is_guest, projecten=projecten)
 
 
-# --- GEBRUIKER OF ADMIN: PROJECT TOEVOEGEN ---
-@app.route('/upload_project', methods=['POST', 'GET'])
+# --- APARTE PAGINA: PROJECT UPLOADEN (GET EN POST) ---
+@app.route('/upload_project', methods=['GET', 'POST'])
 def upload_project():
+    # Beveiliging: Je moet ingelogd zijn om hier te komen
     if 'user_id' not in session:
         flash("Je moet eerst inloggen om een project toe te voegen!", "error")
         return redirect(url_for('login'))
+        
+    # ALS DE GEBRUIKER HET FORMULIER VERSTUURT (POST)
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        link = request.form.get('link')
+        user_id = session['user_id']
+        
+        if title and description:
+            # --- HIER STAAT JE GEWELDIGE AI LOGICA ---
+            # --- OFFICIËLE AI BEOORDELING OP BASIS VAN CRITERIA ---
+            ai_score = 0
+            ai_feedback = "AI Beoordeling mislukt."
+        
+            # De finieer de prompt centraal zodat we hem niet hoeven te herhalen
+            prompt = f"""
+            Je bent een deskundige IT-leerkracht die eindprojecten beoordeelt voor de richting 5ICW (Informatie- en Communicatiewetenschappen).
+            Beoordeel de onderstaande projectomschrijving van een student op basis van de volgende 5 officiële criteria:
+        
+            1. Flask routes & templates (Minimaal 4 werkende pagina's, Jinja2, basistemplate)
+            2. SQLite database & CRUD (Minimaal 1 tabel, volledige CRUD: toevoegen, lezen, bewerken, verwijderen)
+            3. Formulieren & POST (Werkende formulieren met foutafhandeling)
+            4. Login & sessie (Inloggen met session, beveiligde pagina's)
+            5. Bootstrap opmaak & Deployment (Responsive design voor gsm/pc, GitHub gebruik, PythonAnywhere online URL)
+        
+            Project Gegevens van de student:
+            - Titel: {title}
+            - Omschrijving: {description}
+            - Ingediende URL: {link if link else 'Geen URL ingeleverd'}
+        
+            Geef je antwoord STRICT in het volgende formaat (vervang de X en de tekst, behoud de labels exact):
+            SCORE: X/5
+            FEEDBACK: [Geef een korte, motiverende review van maximaal 3 zinnen gericht aan de leerkracht. Analyseer welke van de 5 criteria de student expliciet noemt of lijkt te hebben ingebouwd, en geef aan wat er eventueel nog ontbreekt op basis van de omschrijving. En geef een een paar algemene complimenten over de site zelf.]
+            """
+        
+            try:
+                print("Poging 1: Gemini 2.5 Flash aanroepen...")
+                response = ai_client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt,
+                )
+                ai_text = response.text
 
-    if request.method == 'GET':
-        # Toon de upload-pagina
-        return render_template('upload_project.html')
+            except Exception as e:
+                print(f"Gemini 2.5 overbelast of fout (503). Schakelen naar back-up model... Fout: {e}")
+                try:
+                    # BACK-UP POGING MET EEN ANDER STABIEL MODEL
+                    response = ai_client.models.generate_content(
+                        model='gemini-1.5-flash', 
+                        contents=prompt,
+                    )
+                    ai_text = response.text
+                    print("Back-up model (Gemini 1.5) is succesvol ingesprongen!")
+                except Exception as backup_error:
+                    print(f"Ook back-up model mislukt: {backup_error}")
+                    ai_text = "FOUT"
 
-    # POST -> verwerk formulier
-    title = request.form.get('title')
-    description = request.form.get('description')
-    link = request.form.get('link')
-    visibility = request.form.get('visibility', 'public')
-    user_id = session['user_id']
+            # Verwerk de tekst als een van de twee modellen heeft geantwoord
+            if ai_text != "FOUT" and "SCORE:" in ai_text and "FEEDBACK:" in ai_text:
+                parts = ai_text.split("FEEDBACK:")
+                ai_feedback = parts[1].strip()
+                score_part = parts[0].replace("SCORE:", "").strip()
+                ai_score = int(score_part.split("/")[0])
+            else:
+                ai_score = 0
+                ai_feedback = "De AI-servers van Google waren tijdelijk onbereikbaar. Probeer je projectomschrijving dadelijk nog eens te updaten of in te dienen."
+            
+            # --- EINDE AI LOGICA ---
 
-    if title and description:
+# --- HIER BOVEN STAAT JE BESTAANDE AI LOGICA ---
+        
+        # 1. Haal de gekozen zichtbaarheid op uit het formulier
+        visibility = request.form.get('visibility', 'public') # 'public' is de fallback
+
+        # 2. Sla nu ALLES (inclusief visibility, ai_score en ai_feedback) op!
         conn = get_db_connection()
         db = conn.cursor()
-        db.execute("INSERT INTO projects (title, description, link, user_id, visibility) VALUES (?, ?, ?, ?, ?)", 
-                   (title, description, link, user_id, visibility))
+        db.execute("""
+            INSERT INTO projects (title, description, link, visibility, user_id, ai_score, ai_feedback) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (title, description, link, visibility, user_id, ai_score, ai_feedback))
         conn.commit()
         conn.close()
-        flash("Je project is succesvol toegevoegd!", "success")
+        
+        flash("Je project is succesvol toegevoegd en geanalyseerd door de AI!", "success")
         return redirect(url_for('index'))
-
-    flash("Vul tenminste een titel en beschrijving in!", "error")
-    return redirect(request.referrer or url_for('upload_project'))
-
+            
+    # ALS DE GEBRUIKER GEWOON OP DE KNOP KLIKT (GET)
+    return render_template('upload_project.html')
 
 # --- PROJECT VERWIJDEREN (USER & ADMIN) ---
 @app.route('/delete_project/<int:project_id>', methods=['POST'])
