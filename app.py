@@ -5,12 +5,22 @@ from email.message import EmailMessage
 from flask import Flask, render_template, request, redirect, session, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
-from google import genai
+import os
+from dotenv import load_dotenv # Standaard python library voor systeemfuncties, zoals het lezen van omgevingsvariabelen
+from google import genai # Laadt het .env bestand in
+# --- LAAD OMGEVINGSVARIABELEN ---
 
-ai_client = genai.Client(api_key="AIzaSyAWeTxL1pQCZjn1kuVEH3QRRzch-KEJnEU")
+# Laad de variabelen uit het .env bestand
+load_dotenv()
+
+# Haal de sleutel veilig op uit de achtergrond van de computer
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Initialiseer de AI client met de verborgen sleutel
+ai_client = genai.Client(api_key=API_KEY)
 
 app = Flask(__name__)
-app.secret_key = 'super_geheime_sleutel_verander_dit'
+app.secret_key = 'TiebeIsDeBeste_090408'
 
 # --- EMAIL CONFIGURATIE ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
