@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projecten</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body class="{{ theme_class }}">
@@ -15,12 +16,10 @@
 
             <div class="nav-links">
                 {% if session.user_id %}
-                    <span>Ingelogd als: <a href="/profile" class="profile-link"><strong>{{ session.user_name }}</strong></a></span>
-        
                     <a href="{{ url_for('upload_project') }}" class="btn btn-success">Upload Project</a>
 
                     {% if session.user_role == 'admin' %}
-                        <a href="/admin/dashboard" class="btn btn-accent">🛠️ Admin Paneel</a>
+                        <a href="/admin/dashboard" class="btn btn-accent">Admin Paneel</a>
                     {% endif %}
         
                     <a href="{{ url_for('logout') }}" class="btn btn-ghost">Uitloggen</a>
@@ -29,6 +28,10 @@
                     <a href="{{ url_for('login') }}" class="nav-link">Inloggen</a>
                     <a href="{{ url_for('register') }}" class="nav-link">Registreren</a>
                 {% endif %}
+
+                <a href="/profile" class="profile-icon-link" title="Profiel van {{ session.user_name }}">
+                        <i class="fas fa-user-circle"></i>
+                </a>
             </div>
         </nav>
     </header>

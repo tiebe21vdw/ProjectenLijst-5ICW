@@ -179,6 +179,19 @@ body.ocean header nav {
     background: var(--primary-light);
 }
 
+.profile-icon-link {
+    font-size: 1.4rem; /* Maakt het icoontje net iets groter */
+    color: #333;       /* Pas hier de kleur aan die bij je thema past */
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.2s ease;
+}
+
+.profile-icon-link:hover {
+    color: #007bff;   /* Kleur wanneer je er met de muis overheen zweeft */
+}
+
 .nav-links{display:flex;align-items:center;gap:12px}
 .nav-links a{color:var(--text);text-decoration:none;padding:6px 8px;border-radius:6px}
 .nav-links a:hover{background:var(--glass)}
