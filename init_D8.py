@@ -24,6 +24,8 @@ def init_db():
             link TEXT,
             visibility TEXT DEFAULT 'public',
             user_id INTEGER NOT NULL, -- HIERMEE KOPPELEN WE HET PROJECT AAN EEN GEBRUIKER
+            ai_score INTEGER DEFAULT 0,
+            ai_feedback TEXT DEFAULT '',
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
         )
     ''')
