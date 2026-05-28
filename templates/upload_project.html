@@ -10,7 +10,8 @@
         <form action="{{ url_for('upload_project') }}" method="post" class="admin-form">
             <input type="text" name="title" placeholder="Titel van jouw eindproject" required>
             <textarea name="description" placeholder="Leg kort uit wat jouw website doet en welke backend/frontend technieken (bijv. Flask, SQLite) je hebt gebruikt..." required></textarea>
-            <input type="url" name="link" placeholder="Live URL naar jouw website (bijv. http://localhost:5000 of je hosting link)">
+            <input type="url" name="link" placeholder="Live URL naar jouw website.">
+            <input type="url" name="github-link" placeholder="Zet hier de link naar je github repository.">
             <div class="input-group">
                 <label>Wie kan dit project zien?</label>
                 <select name="visibility">
@@ -31,7 +32,8 @@
             <form action="{{ url_for('upload_project') }}" method="post" class="admin-form">
                 <input type="text" name="title" placeholder="Naam van het project / de website" required>
                 <textarea name="description" placeholder="Korte toelichting of beoordelingscriteria..." required></textarea>
-                <input type="url" name="link" placeholder="URL naar de live website (optioneel)">
+                <input type="url" name="link" placeholder="URL naar de live website.">
+                <input type="url" name="github-link" placeholder="Zet hier de link naar je github repository.">
                 <div class="input-group">
                     <label>Wie kan dit project zien?</label>
                     <select name="visibility">

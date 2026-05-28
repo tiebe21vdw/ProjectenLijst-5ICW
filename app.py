@@ -188,6 +188,7 @@ def upload_project():
             - Titel: {title}
             - Omschrijving: {description}
             - Ingediende URL: {link if link else 'Geen URL ingeleverd'}
+            - GitHub URL: {request.form.get('github-link', 'Geen GitHub link ingeleverd')}
         
             Geef je antwoord STRICT in het volgende formaat (vervang de X en de tekst, behoud de labels exact):
             SCORE: X/5

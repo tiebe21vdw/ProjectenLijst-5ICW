@@ -16,4 +16,15 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         }, { once: true });
     });
+
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const uploadForms = document.querySelectorAll('form.admin-form');
+
+    if (loadingOverlay) {
+        uploadForms.forEach((form) => {
+            form.addEventListener('submit', () => {
+                loadingOverlay.classList.add('active');
+            });
+        });
+    }
 });

@@ -214,6 +214,52 @@ body.ocean .theme-form select{background:#dbeafe;border:1px solid rgba(14,165,23
 .btn-ghost{background:transparent;border:1px solid var(--glass);color:var(--text)}
 .btn.small{padding:6px 8px;font-size:0.85rem}
 
+.loading-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,0.65);
+    backdrop-filter:blur(4px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity 0.25s ease, visibility 0.25s ease;
+}
+.loading-overlay.active{
+    opacity:1;
+    visibility:visible;
+}
+.loading-card{
+    background:rgba(255,255,255,0.95);
+    border-radius:16px;
+    padding:28px 30px;
+    box-shadow:0 18px 40px rgba(0,0,0,0.18);
+    text-align:center;
+    max-width:320px;
+    width:100%;
+}
+.loading-card p{
+    margin-top:16px;
+    color:var(--text);
+    font-size:1rem;
+    font-weight:600;
+}
+.spinner{
+    width:52px;
+    height:52px;
+    margin:0 auto;
+    border:6px solid rgba(79,70,229,0.18);
+    border-top-color:var(--primary);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+@keyframes spin{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+}
+
 /* Forms */
 .input-group{margin-bottom:14px;display:flex;flex-direction:column}
 .input-group label{font-size:0.9rem;margin-bottom:6px}
