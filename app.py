@@ -176,7 +176,7 @@ def upload_project():
             # De finieer de prompt centraal zodat we hem niet hoeven te herhalen
             prompt = f"""
             Je bent een deskundige IT-leerkracht die eindprojecten beoordeelt voor de richting 5ICW (Informatie- en Communicatiewetenschappen).
-            Beoordeel de onderstaande projectomschrijving van een student op basis van de volgende 5 officiële criteria:
+            Beoordeel de onderstaande site via de link van een student op basis van de volgende 5 officiële criteria:
         
             1. Flask routes & templates (Minimaal 4 werkende pagina's, Jinja2, basistemplate)
             2. SQLite database & CRUD (Minimaal 1 tabel, volledige CRUD: toevoegen, lezen, bewerken, verwijderen)
