@@ -7,30 +7,38 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
 </head>
 <body class="{{ theme_class }}">
 
     <header>
         <nav>
-            <a href="{{ url_for('index') }}" class="nav-logo">Home</a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="icon-link" title="Home page">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
 
             <div class="nav-links">
                 {% if session.user_id %}
-                    <a href="{{ url_for('upload_project') }}" class="btn btn-success">Upload Project</a>
+                    <a href="{{ url_for('upload_project') }}" class="btn btn-success">
+                        <span class="show-on-mobile"><i class="fa-solid fa-upload"></i></span>
+                        <span class="show-on-desktop">Project Uploaden</span>
+                    </a>
 
                     {% if session.user_role == 'admin' %}
                         <a href="/admin/dashboard" class="btn btn-accent">Admin Paneel</a>
                     {% endif %}
-        
-                    <a href="{{ url_for('logout') }}" class="btn btn-ghost">Uitloggen</a>
+                
+                    <a href="{{ url_for('logout') }}" class="btn btn-primary">Uitloggen</a>
                 {% else %}
                     <span class="badge-guest">Modus: Gast</span>
                     <a href="{{ url_for('login') }}" class="nav-link">Inloggen</a>
                     <a href="{{ url_for('register') }}" class="nav-link">Registreren</a>
                 {% endif %}
 
-                <a href="/profile" class="profile-icon-link" title="Profiel van {{ session.user_name }}">
-                        <i class="fas fa-user-circle"></i>
+                <a href="/profile" class="icon-link" title="Profiel van {{ session.user_name }}">
+                    <i class="fa-regular fa-circle-user"></i>
                 </a>
             </div>
         </nav>

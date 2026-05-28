@@ -54,7 +54,6 @@ body.frosted-ice{
     --border: rgba(255,255,255,0.4);
     --glass: rgba(255,255,255,0.25);
 }
-
 body.coffee{
     --bg: #f8f5f2;
     --bg-gradient: #e7d9cf;
@@ -69,7 +68,6 @@ body.coffee{
     --border: #e6ccb2;
     --glass: rgba(111,78,55,0.08);
 }
-
 body.dark {
     --bg: #020617;
     --bg-gradient: #1b1e30;
@@ -179,17 +177,17 @@ body.ocean header nav {
     background: var(--primary-light);
 }
 
-.profile-icon-link {
+.icon-link {
     font-size: 1.4rem; /* Maakt het icoontje net iets groter */
-    color: #333;       /* Pas hier de kleur aan die bij je thema past */
+    color: var(--text);     /* Pas hier de kleur aan die bij je thema past */
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     transition: color 0.2s ease;
 }
 
-.profile-icon-link:hover {
-    color: #007bff;   /* Kleur wanneer je er met de muis overheen zweeft */
+.icon-link:hover {
+    color: var(--primary);  /* Kleur wanneer je er met de muis overheen zweeft */
 }
 
 .nav-links{display:flex;align-items:center;gap:12px}
@@ -291,4 +289,22 @@ table tr:nth-child(even){background:rgba(0,0,0,0.02)}
 @media(max-width:600px){
     .nav-links{gap:8px}
     .container{padding:0 14px}
+}
+
+/* --- 2. Media Queries voor Mobiel vs PC (Upload Knop) --- */
+.show-on-mobile {
+    display: inline-block;
+}
+.show-on-desktop {
+    display: none;
+}
+
+/* Op PC (schermen breder dan 768px): verberg icoon, toon tekst */
+@media (min-width: 768px) {
+    .show-on-mobile {
+        display: none;
+    }
+    .show-on-desktop {
+        display: inline-block;
+    }
 }
