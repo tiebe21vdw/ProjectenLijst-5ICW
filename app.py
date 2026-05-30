@@ -22,6 +22,9 @@ ai_client = genai.Client(api_key=API_KEY)
 app = Flask(__name__)
 app.secret_key = 'TiebeIsDeBeste_090408'
 
+# Optionele basis-URL voor e-maillinks in productie / externe toegang
+app.config['APP_BASE_URL'] = os.getenv('APP_BASE_URL')
+
 # --- EMAIL CONFIGURATIE ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -359,17 +362,21 @@ def register():
             
             # --- VERIFICATIE MAIL GENEREREN ---
             token = s.dumps(email, salt='email-confirm')
-            link = url_for('confirm_email', token=token, _external=True)
+            if app.config.get('APP_BASE_URL'):
+                link = app.config['APP_BASE_URL'].rstrip('/') + url_for('confirm_email', token=token)
+            else:
+                link = url_for('confirm_email', token=token, _external=True)
             
             email_body = (
                 f'Beste {name},\n\n'
                 f'Klik op de volgende link om je account te activeren:\n{link}\n\n'
+                'Als de link niet direct werkt, kopieer dan de volledige URL en plak deze in je browser.\n\n'
                 'Deze link is 30 minuten geldig.'
             )
             
             send_email('Verifieer je e-mailadres', [email], email_body)
             
-            return render_template('confirm_notice.html', email=email)
+            return render_template('confirm_notice.html', email=email, activation_link=link)
             
         except sqlite3.IntegrityError:
             conn.close()

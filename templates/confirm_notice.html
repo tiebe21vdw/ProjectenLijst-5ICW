@@ -3,12 +3,16 @@
 <div class="notice-container" style="text-align: center; margin-top: 50px;">
     <h2>Bijna klaar! Activeer je account</h2>
     <p>We hebben een verificatielink gestuurd naar: <strong>{{ email }}</strong></p>
-    
+    <p>Als de link in je e-mail niet werkt, kun je deze handmatig openen of kopiëren:</p>
+    <div style="background-color: #f8f9fa; border-left: 4px solid #3498db; padding: 15px; margin: 20px auto; max-width: 500px; text-align: left; word-break: break-all;">
+        <p style="margin: 0 0 10px 0;"><strong>Activatielink:</strong></p>
+        <p><a href="{{ activation_link }}">{{ activation_link }}</a></p>
+    </div>
     <div style="background-color: #f8f9fa; border-left: 4px solid #3498db; padding: 15px; margin: 20px auto; max-width: 500px; text-align: left;">
         <p style="margin: 0 0 10px 0;"><strong>Wat moet je nu doen?</strong></p>
         <ol style="margin: 0; padding-left: 20px;">
             <li>Open je mailbox (en controleer ook je <strong>spammap</strong> als je niks ziet).</li>
-            <li>Klik op de activatielink in de e-mail.</li>
+            <li>Klik op de activatielink in de e-mail of kopieer de link hierboven.</li>
             <li>Zodra je e-mailadres geverifieerd is, kun je inloggen.</li>
         </ol>
     </div>
