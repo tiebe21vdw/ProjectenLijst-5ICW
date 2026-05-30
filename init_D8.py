@@ -22,6 +22,7 @@ def init_db():
             title TEXT NOT NULL,
             description TEXT NOT NULL,
             link TEXT,
+            github_link TEXT,
             visibility TEXT DEFAULT 'public',
             user_id INTEGER NOT NULL, -- HIERMEE KOPPELEN WE HET PROJECT AAN EEN GEBRUIKER
             ai_score INTEGER DEFAULT 0,

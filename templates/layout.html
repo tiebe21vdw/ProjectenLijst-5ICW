@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
 </head>
 <body class="{{ theme_class }}">
     <div id="loading-overlay" class="loading-overlay" aria-hidden="true">
@@ -35,12 +34,8 @@
                     {% if session.user_role == 'admin' %}
                         <a href="/admin/dashboard" class="btn btn-accent">Admin Paneel</a>
                     {% endif %}
-                
-                    <a href="{{ url_for('logout') }}" class="btn btn-primary">Uitloggen</a>
                 {% else %}
                     <span class="badge-guest">Modus: Gast</span>
-                    <a href="{{ url_for('login') }}" class="nav-link">Inloggen</a>
-                    <a href="{{ url_for('register') }}" class="nav-link">Registreren</a>
                 {% endif %}
 
                 <a href="/profile" class="icon-link" title="Profiel van {{ session.user_name }}">

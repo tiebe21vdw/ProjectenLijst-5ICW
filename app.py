@@ -102,6 +102,21 @@ def ensure_project_ai_columns():
     conn.commit()
     conn.close()
 
+# Zorg dat de projects-tabel een github-link kolom heeft
+# Dit maakt het veilig om bestaande databases te upgraden.
+def ensure_project_github_column():
+    conn = get_db_connection()
+    db = conn.cursor()
+    table_exists = db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='projects'").fetchone()
+    if not table_exists:
+        conn.close()
+        return
+    columns = [row['name'] for row in db.execute("PRAGMA table_info(projects)").fetchall()]
+    if 'github_link' not in columns:
+        db.execute("ALTER TABLE projects ADD COLUMN github_link TEXT")
+        conn.commit()
+    conn.close()
+
 # Native mailfunctie met ingebouwde foutafhandeling
 def send_email(subject, recipients, body):
     msg = EmailMessage()
@@ -129,6 +144,7 @@ def set_theme():
 ensure_project_comment_column()
 ensure_project_visibility_column()
 ensure_project_ai_columns()
+ensure_project_github_column()
 
 # --- HOME PAGINA ---
 @app.route('/')
@@ -182,6 +198,7 @@ def upload_project():
         title = request.form.get('title')
         description = request.form.get('description')
         link = request.form.get('link')
+        github_link = request.form.get('github-link')
         visibility = request.form.get('visibility', 'public')
         user_id = session['user_id']
 
@@ -209,7 +226,7 @@ def upload_project():
         - Titel: {title}
         - Omschrijving: {description}
         - Ingediende URL: {link if link else 'Geen URL ingeleverd'}
-        - GitHub URL: {request.form.get('github-link', 'Geen GitHub link ingeleverd')}
+        - GitHub URL: {github_link if github_link else 'Geen GitHub link ingeleverd'}
 
         Geef je antwoord STRICT in het volgende formaat (vervang de X en de tekst, behoud de labels exact):
         SCORE: X/5
@@ -254,9 +271,9 @@ def upload_project():
         conn = get_db_connection()
         db = conn.cursor()
         db.execute("""
-            INSERT INTO projects (title, description, link, visibility, user_id, ai_score, ai_feedback) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (title, description, link, visibility, user_id, ai_score, ai_feedback))
+            INSERT INTO projects (title, description, link, github_link, visibility, user_id, ai_score, ai_feedback) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (title, description, link, github_link, visibility, user_id, ai_score, ai_feedback))
         conn.commit()
         conn.close()
         

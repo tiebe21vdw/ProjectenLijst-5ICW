@@ -58,11 +58,19 @@
                     </div>
                     
                     <div class="project-actions">
-                        {% if project['link'] %}
-                            <a href="{{ project['link'] }}" target="_blank" class="link-primary">Bezoek website ↗</a>
-                        {% else %}
-                            <span class="muted small italic">Geen link beschikbaar</span>
-                        {% endif %}
+                        <div class="project-links">
+                            {% if project['link'] %}
+                                <a href="{{ project['link'] }}" target="_blank" class="link-primary">Bezoek website ↗</a>
+                            {% endif %}
+
+                            {% if project['github_link'] %}
+                                <a href="{{ project['github_link'] }}" target="_blank" class="link-primary">Bekijk GitHub ↗</a>
+                            {% endif %}
+
+                            {% if not project['link'] and not project['github_link'] %}
+                                <span class="muted small italic">Geen link beschikbaar</span>
+                            {% endif %}
+                        </div>
 
                         {% if session.user_id and (project['user_id'] == session.user_id or session.user_role == 'admin') %}
                             <form action="{{ url_for('delete_project', project_id=project['id']) }}" method="post" onsubmit="return confirm('Weet je zeker dat je dit project wilt verwijderen?');" class="inline-form">

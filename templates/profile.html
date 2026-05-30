@@ -27,6 +27,8 @@
         <button type="submit" class="btn btn-primary">Wijzigingen opslaan</button>
     </form>
 
+    <a href="{{ url_for('logout') }}" style="color: var(--text);">Uitloggen</a>
+
     <div class="profile-theme-panel">
         <h3>Kies je kleuren thema</h3>
         <form action="{{ url_for('set_theme') }}" method="post" class="theme-form">
