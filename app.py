@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, redirect, session, url_for, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 import os
+import logging
 from dotenv import load_dotenv # Standaard python library voor systeemfuncties, zoals het lezen van omgevingsvariabelen
 from google import genai # Laadt het .env bestand in
 # --- LAAD OMGEVINGSVARIABELEN ---
@@ -18,6 +19,10 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Initialiseer de AI client met de verborgen sleutel
 ai_client = genai.Client(api_key=API_KEY)
+
+# Configureer logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 app = Flask(__name__)
 app.secret_key = 'TiebeIsDeBeste_090408'
@@ -165,14 +170,18 @@ def evaluate_project_with_ai(title, description, link, github_link):
             contents=prompt,
         )
         ai_text = response.text
+        logging.info(f"Gemini 2.5-flash response: {ai_text}")
     except Exception as e:
+        logging.error(f"Fout bij Gemini 2.5-flash aanroep: {e}")
         try:
             response = ai_client.models.generate_content(
                 model='gemini-1.5-flash',
                 contents=prompt,
             )
             ai_text = response.text
-        except Exception:
+            logging.info(f"Gemini 1.5-flash response: {ai_text}")
+        except Exception as e_fallback:
+            logging.error(f"Fout bij Gemini 1.5-flash aanroep (fallback): {e_fallback}")
             ai_text = "FOUT"
 
     if ai_text != "FOUT" and "SCORE:" in ai_text and "FEEDBACK:" in ai_text:
@@ -181,6 +190,7 @@ def evaluate_project_with_ai(title, description, link, github_link):
         score_part = parts[0].replace("SCORE:", "").strip()
         ai_score = int(score_part.split("/")[0])
     else:
+        logging.warning(f"AI-antwoord voldeed niet aan formaat of was 'FOUT'. Antwoord: {ai_text}")
         ai_score = 0
         ai_feedback = "De AI-servers van Google waren tijdelijk onbereikbaar. Probeer je projectomschrijving dadelijk nog eens te updaten of in te dienen."
 
