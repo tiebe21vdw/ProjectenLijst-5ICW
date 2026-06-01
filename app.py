@@ -2,7 +2,7 @@
 import sqlite3
 import smtplib
 from email.message import EmailMessage
-from flask import Flask, render_template, request, redirect, session, url_for, flash
+from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 import os
@@ -134,6 +134,58 @@ def send_email(subject, recipients, body):
         server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
         server.send_message(msg)
 
+
+def evaluate_project_with_ai(title, description, link, github_link):
+    ai_score = 0
+    ai_feedback = "AI Beoordeling mislukt."
+    prompt = f"""
+        Je bent een deskundige IT-leerkracht die eindprojecten beoordeelt voor de richting 5ICW (Informatie- en Communicatiewetenschappen).
+        Beoordeel de onderstaande site via de link van een student op basis van de volgende 5 officiële criteria:
+
+        1. Flask routes & templates (Minimaal 4 werkende pagina's, Jinja2, basistemplate)
+        2. SQLite database & CRUD (Minimaal 1 tabel, volledige CRUD: toevoegen, lezen, bewerken, verwijderen)
+        3. Formulieren & POST (Werkende formulieren met foutafhandeling)
+        4. Login & sessie (Inloggen met session, beveiligde pagina's)
+        5. Bootstrap opmaak & Deployment (Responsive design voor gsm/pc, GitHub gebruik, PythonAnywhere online URL)
+
+        Project Gegevens van de student:
+        - Titel: {title}
+        - Omschrijving: {description}
+        - Ingediende URL: {link if link else 'Geen URL ingeleverd'}
+        - GitHub URL: {github_link if github_link else 'Geen GitHub link ingeleverd'}
+
+        Geef je antwoord STRICT in het volgende formaat (vervang de X en de tekst, behoud de labels exact):
+        SCORE: X/5
+        FEEDBACK: [Geef een korte, motiverende review van maximaal 3 zinnen gericht aan de leerkracht. Analyseer welke van de 5 criteria de student expliciet noemt of lijkt te hebben ingebouwd, en geef aan wat er eventueel nog ontbreekt op basis van de omschrijving. En geef een een paar algemene complimenten over de site zelf.]
+        """
+
+    try:
+        response = ai_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        ai_text = response.text
+    except Exception as e:
+        try:
+            response = ai_client.models.generate_content(
+                model='gemini-1.5-flash',
+                contents=prompt,
+            )
+            ai_text = response.text
+        except Exception:
+            ai_text = "FOUT"
+
+    if ai_text != "FOUT" and "SCORE:" in ai_text and "FEEDBACK:" in ai_text:
+        parts = ai_text.split("FEEDBACK:")
+        ai_feedback = parts[1].strip()
+        score_part = parts[0].replace("SCORE:", "").strip()
+        ai_score = int(score_part.split("/")[0])
+    else:
+        ai_score = 0
+        ai_feedback = "De AI-servers van Google waren tijdelijk onbereikbaar. Probeer je projectomschrijving dadelijk nog eens te updaten of in te dienen."
+
+    return ai_score, ai_feedback
+
 @app.route('/set_theme', methods=['POST'])
 def set_theme():
     theme = request.form.get('theme', 'light')
@@ -188,6 +240,33 @@ def index():
     return render_template('index.html', username=current_user, is_guest=is_guest, projecten=projecten)
 
 
+@app.route('/rerun_project_ai/<int:project_id>', methods=['POST'])
+def rerun_project_ai(project_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Je moet ingelogd zijn om deze actie uit te voeren.'}), 401
+
+    conn = get_db_connection()
+    db = conn.cursor()
+    project = db.execute('SELECT * FROM projects WHERE id = ?', (project_id,)).fetchone()
+    if not project:
+        conn.close()
+        return jsonify({'error': 'Project niet gevonden.'}), 404
+
+    if project['user_id'] != session['user_id'] and session.get('user_role') != 'admin':
+        conn.close()
+        return jsonify({'error': 'Je hebt geen toestemming om dit project opnieuw te analyseren.'}), 403
+
+    ai_score, ai_feedback = evaluate_project_with_ai(
+        project['title'], project['description'], project['link'], project['github_link']
+    )
+
+    db.execute('UPDATE projects SET ai_score = ?, ai_feedback = ? WHERE id = ?', (ai_score, ai_feedback, project_id))
+    conn.commit()
+    conn.close()
+
+    return jsonify({'success': True, 'ai_score': ai_score, 'ai_feedback': ai_feedback})
+
+
 # --- APARTE PAGINA: PROJECT UPLOADEN (GET EN POST) ---
 @app.route('/upload_project', methods=['GET', 'POST'])
 def upload_project():
@@ -210,64 +289,8 @@ def upload_project():
             return render_template('upload_project.html')
 
         # --- HIER STAAT JE GEWELDIGE AI LOGICA ---
-        # --- OFFICIËLE AI BEOORDELING OP BASIS VAN CRITERIA ---
-        ai_score = 0
-        ai_feedback = "AI Beoordeling mislukt."
+        ai_score, ai_feedback = evaluate_project_with_ai(title, description, link, github_link)
 
-        # De finieer de prompt centraal zodat we hem niet hoeven te herhalen
-        prompt = f"""
-        Je bent een deskundige IT-leerkracht die eindprojecten beoordeelt voor de richting 5ICW (Informatie- en Communicatiewetenschappen).
-        Beoordeel de onderstaande site via de link van een student op basis van de volgende 5 officiële criteria:
-
-        1. Flask routes & templates (Minimaal 4 werkende pagina's, Jinja2, basistemplate)
-        2. SQLite database & CRUD (Minimaal 1 tabel, volledige CRUD: toevoegen, lezen, bewerken, verwijderen)
-        3. Formulieren & POST (Werkende formulieren met foutafhandeling)
-        4. Login & sessie (Inloggen met session, beveiligde pagina's)
-        5. Bootstrap opmaak & Deployment (Responsive design voor gsm/pc, GitHub gebruik, PythonAnywhere online URL)
-
-        Project Gegevens van de student:
-        - Titel: {title}
-        - Omschrijving: {description}
-        - Ingediende URL: {link if link else 'Geen URL ingeleverd'}
-        - GitHub URL: {github_link if github_link else 'Geen GitHub link ingeleverd'}
-
-        Geef je antwoord STRICT in het volgende formaat (vervang de X en de tekst, behoud de labels exact):
-        SCORE: X/5
-        FEEDBACK: [Geef een korte, motiverende review van maximaal 3 zinnen gericht aan de leerkracht. Analyseer welke van de 5 criteria de student expliciet noemt of lijkt te hebben ingebouwd, en geef aan wat er eventueel nog ontbreekt op basis van de omschrijving. En geef een een paar algemene complimenten over de site zelf.]
-        """
-
-        try:
-            print("Poging 1: Gemini 2.5 Flash aanroepen...")
-            response = ai_client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-            )
-            ai_text = response.text
-
-        except Exception as e:
-            print(f"Gemini 2.5 overbelast of fout (503). Schakelen naar back-up model... Fout: {e}")
-            try:
-                # BACK-UP POGING MET EEN ANDER STABIEL MODEL
-                response = ai_client.models.generate_content(
-                    model='gemini-1.5-flash', 
-                    contents=prompt,
-                )
-                ai_text = response.text
-                print("Back-up model (Gemini 1.5) is succesvol ingesprongen!")
-            except Exception as backup_error:
-                print(f"Ook back-up model mislukt: {backup_error}")
-                ai_text = "FOUT"
-
-        # Verwerk de tekst als een van de twee modellen heeft geantwoord
-        if ai_text != "FOUT" and "SCORE:" in ai_text and "FEEDBACK:" in ai_text:
-            parts = ai_text.split("FEEDBACK:")
-            ai_feedback = parts[1].strip()
-            score_part = parts[0].replace("SCORE:", "").strip()
-            ai_score = int(score_part.split("/")[0])
-        else:
-            ai_score = 0
-            ai_feedback = "De AI-servers van Google waren tijdelijk onbereikbaar. Probeer je projectomschrijving dadelijk nog eens te updaten of in te dienen."
-        
         # --- EINDE AI LOGICA ---
 
         # 2. Sla nu ALLES (inclusief visibility, ai_score en ai_feedback) op!

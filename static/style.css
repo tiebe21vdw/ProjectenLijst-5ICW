@@ -260,6 +260,27 @@ body.ocean .theme-form select{background:#dbeafe;border:1px solid rgba(14,165,23
     to{transform:rotate(360deg)}
 }
 
+.ai-herladen{
+    display: inline-flex;
+    height: 25px;
+    align-items: center;
+    background: var(--primary);
+    border: none;
+    border-radius: 6px;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: white;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.ai-herladen:hover {
+    transform: scale(1.02);
+    background: var(--primary-light);
+    color: var(--text);
+}
+
 /* Forms */
 .input-group{margin-bottom:14px;display:flex;flex-direction:column}
 .input-group label{font-size:0.9rem;margin-bottom:6px}
@@ -281,8 +302,9 @@ textarea{resize:vertical}
 
 /* Cards and grids */
 .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:20px}
-.project-card{border:1px solid rgba(0,0,0,0.06);padding:20px;border-radius:10px;background:var(--card);box-shadow:0 6px 18px rgba(15,20,25,0.04);display:flex;flex-direction:column;justify-content:space-between}
+.project-card{border:1px solid rgba(0,0,0,0.06);padding:20px;border-radius:10px;background:var(--card);box-shadow:0 6px 18px rgba(15,20,25,0.04);display:flex;flex-direction:column;justify-content:space-between;transition: all 0.25s ease}
 .project-card h4{margin:0 0 6px 0;color:var(--text)}
+.project-card:hover{box-shadow:0 12px 24px rgba(15,20,25,0.08); transform: scale(1.02)}
 .project-meta{margin:0 0 12px 0;font-size:0.9rem;color:var(--muted);font-style:italic}
 .muted{color:var(--muted)}
 
