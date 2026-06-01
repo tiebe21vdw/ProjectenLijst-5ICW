@@ -14,6 +14,12 @@
     <h3>Ingezonden Projecten</h3>
     
     {% if projecten %}
+        <!-- Voeg dit toe vlak boven de projects-grid -->
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="project-search" class="search-input" placeholder="Zoek op student of projectnaam...">
+        </div>
+
         <div class="projects-grid">
             {% for project in projecten %}
             <div class="project-card">

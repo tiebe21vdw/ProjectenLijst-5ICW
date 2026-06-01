@@ -204,6 +204,12 @@ body.ocean .theme-form select{background:#dbeafe;border:1px solid rgba(14,165,23
 
 .badge-guest{background:var(--accent);color:white;padding:6px 8px;border-radius:6px;font-size:0.85rem}
 
+/* Search Bar */
+.search-container{margin-bottom:30px;position:relative;width:100%}
+.search-container .search-input{width:100%;padding:14px 20px 14px 50px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1rem;box-shadow:0 4px 15px rgba(0,0,0,0.05);transition:all 0.3s ease;outline:none}
+.search-input:focus{border-color:var(--primary);box-shadow:0 8px 25px rgba(79,70,229,0.12)}
+.search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:1.1rem}
+
 /* Buttons */
 .btn{display:inline-block;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;text-decoration:none;font-weight:600}
 .btn:focus{outline:2px solid rgba(52,152,219,0.2)}
@@ -301,10 +307,10 @@ textarea{resize:vertical}
 .flash-message.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
 
 /* Cards and grids */
-.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:20px}
-.project-card{border:1px solid rgba(0,0,0,0.06);padding:20px;border-radius:10px;background:var(--card);box-shadow:0 6px 18px rgba(15,20,25,0.04);display:flex;flex-direction:column;justify-content:space-between;transition: all 0.25s ease}
+.projects-grid{columns:300px;column-gap:30px;margin-top:30px;display:block}
+.project-card{border:1px solid var(--border);padding:25px;border-radius:14px;background:var(--card);box-shadow:0 10px 25px rgba(0,0,0,0.05);display:flex;flex-direction:column;justify-content:space-between;transition: transform 0.3s ease, box-shadow 0.3s ease;break-inside:avoid;margin-bottom:30px;width:100%}
 .project-card h4{margin:0 0 6px 0;color:var(--text)}
-.project-card:hover{box-shadow:0 12px 24px rgba(15,20,25,0.08); transform: scale(1.02)}
+.project-card:hover{box-shadow:0 20px 45px rgba(0,0,0,0.1); transform: translateY(-8px)}
 .project-meta{margin:0 0 12px 0;font-size:0.9rem;color:var(--muted);font-style:italic}
 .muted{color:var(--muted)}
 

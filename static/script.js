@@ -73,4 +73,22 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Zoekfunctionaliteit
+    const searchInput = document.getElementById('project-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const filter = searchInput.value.toLowerCase();
+            const cards = document.querySelectorAll('.project-card');
+
+            cards.forEach(card => {
+                const title = card.querySelector('h4').textContent.toLowerCase();
+                const meta = card.querySelector('.project-meta').textContent.toLowerCase();
+                
+                // Toon de kaart als de filter matcht met de titel of de meta-informatie (studentnaam)
+                const isMatch = title.includes(filter) || meta.includes(filter);
+                card.style.display = isMatch ? "" : "none";
+            });
+        });
+    }
 });
