@@ -157,17 +157,20 @@ body::after {
 .container{
     border: 2px solid rgba(255, 255, 255, .2);
     border-radius:12px;
-    width: 100%;
+    max-width: 90%;
     margin:30px auto;
     padding:0 20px;
     backdrop-filter: blur(20px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, .1);
     transition: all ease 0.5s;
+    width: fit-content;
+    padding-bottom: 20px;
 }
 
 .container:hover {
+    border-color:var(--primary);
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    transform: translateY(-5px);
+    transform: translateY(-1px);
 }
 
 header nav{
@@ -177,9 +180,16 @@ header nav{
     gap:16px;
     padding:16px 20px;
     backdrop-filter: blur(20px);
+    width: 90%;
+    justify-self: center;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, .1);
     border: 2px solid rgba(255, 255, 255, .2);
+    transition: all ease 0.5s;
+}
+
+header nav:hover {
+    border-color:var(--primary);
 }
 
 .nav-logo{
@@ -353,8 +363,8 @@ textarea{resize:vertical}
 /* Cards and grids */
 .projects-grid{columns:300px;column-gap:30px;margin-top:30px;display:block}
 .project-card{border:2px solid var(--border);padding:25px;border-radius:14px;background:var(--card);box-shadow:0 10px 25px rgba(0,0,0,0.05);display:flex;flex-direction:column;justify-content:space-between;transition: transform 0.3s ease, box-shadow 0.3s ease;break-inside:avoid;margin-bottom:30px;width:100%;backdrop-filter: blur(15px);-webkit-backdrop-filter: blur(15px);}
-.project-card h4{margin:0 0 6px 0;color:var(--text)}
-.project-card:hover{box-shadow:0 20px 45px rgba(0,0,0,0.1); transform: translateY(-8px)}
+.project-card h4{margin:0 0 6px 0;color:var(--text); transition: all ease 0.3s;}
+.project-card:hover{box-shadow:0 20px 45px rgba(0,0,0,0.1); transform: translateY(-8px);border-color:var(--primary);}
 .project-meta{margin:0 0 12px 0;font-size:0.9rem;color:var(--muted);font-style:italic; border: 5px}
 .muted{color:var(--muted)}
 
@@ -377,7 +387,7 @@ textarea{resize:vertical}
 
 .admin-panel h3{color:var(--accent);margin-top:0}
 
-.user-projects-box{background:#e8f4f8;padding:20px;border-radius:8px;border:2px solid #a9cce3}
+.user-projects-box{background:#e8f4f8;padding:20px;border-radius:8px;border:2px solid #a9cce3;}
 
 .profile-page{max-width:520px;margin:30px auto;display:flex;flex-direction:column;gap:24px;align-items:center}
 .profile-page .profile-header{text-align:center}
