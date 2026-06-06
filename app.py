@@ -9,8 +9,9 @@ import os
 import logging
 from dotenv import load_dotenv # Standaard python library voor systeemfuncties, zoals het lezen van omgevingsvariabelen
 from google import genai # Laadt het .env bestand in
-# --- LAAD OMGEVINGSVARIABELEN ---
+import hashlib
 
+# --- LAAD OMGEVINGSVARIABELEN ---
 # Laad de variabelen uit het .env bestand
 load_dotenv()
 
@@ -459,6 +460,7 @@ def login():
             session['user_id'] = user['id']
             session['user_name'] = user['name']
             session['user_role'] = user['role']
+            session['user_email'] = user['email']
             return redirect(url_for('index'))
         else:
             flash("Ongeldig e-mailadres of wachtwoord!", "error")
@@ -628,6 +630,21 @@ def delete_own_account():
     session.clear()
     return render_template('login.html', success="Je account is permanent verwijderd. Jammer dat je weggaat!")
 
+@app.context_processor
+def inject_gravatar():
+    # Controleer of er een gebruiker is ingelogd en of het e-mailadres in de sessie staat
+    # Let op: we moeten het e-mailadres wel in de sessie opslaan bij het inloggen (zie Stap 2)
+    email = session.get('user_email', '')
+    
+    if email:
+        clean_email = email.strip().lower()
+        gravatar_hash = hashlib.md5(clean_email.encode('utf-8')).hexdigest()
+        avatar_url = f"https://www.gravatar.com/avatar/{gravatar_hash}?s=150&d=mp"
+    else:
+        # Als er niemand is ingelogd, tonen we direct de standaard 'Mystery Person' placeholder
+        avatar_url = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+        
+    return {'user_avatar': avatar_url}
 
 if __name__ == '__main__':
     # Voer eenmalig de check uit bij het opstarten van de server

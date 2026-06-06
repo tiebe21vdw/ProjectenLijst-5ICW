@@ -21,7 +21,6 @@
             <div class="nav-links">
                 <a href="{{ url_for('index') }}" class="icon-link" title="Home page">
                     <i class="fas fa-home"></i>
-                    <span class="show-on-mobile" style="margin-left: 7px;"><strong>Home</strong></span>
                 </a>
                 {% if session.user_id %}
                 <span class="show-on-desktop">Ingelogd als: <a href="{{ url_for('profile') }}"><strong>{{ session.user_name }}</strong></a></span>
@@ -57,7 +56,11 @@
                 {% endif %}
 
                 <a href="/profile" class="icon-link" title="Profiel van {{ session.user_name }}">
-                    <i class="fa-solid fa-circle-user"></i>
+                    {% if session.user_id %}
+                        <img src="{{ user_avatar }}" alt="Profielfoto" class="avatar">
+                    {% else %}
+                        <i class="fa-solid fa-circle-user"></i>
+                    {% endif %}
                 </a>
             </div>
         </nav>
@@ -76,6 +79,5 @@
         {% block content %}
         {% endblock %}
     </main>
-
 </body>
 </html>

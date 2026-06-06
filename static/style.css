@@ -168,7 +168,6 @@ body::after {
 }
 
 .container:hover {
-    border-color:var(--primary);
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     transform: translateY(-1px);
 }
@@ -186,10 +185,6 @@ header nav{
     box-shadow: 0 10px 25px rgba(0, 0, 0, .1);
     border: 2px solid rgba(255, 255, 255, .2);
     transition: all ease 0.5s;
-}
-
-header nav:hover {
-    border-color:var(--primary);
 }
 
 .nav-logo{
@@ -238,6 +233,13 @@ header nav:hover {
     display: inline-flex;
     align-items: center;
     transition: color 0.2s ease;
+}
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%; /* Maakt de foto mooi rond */
+    object-fit: cover;
 }
 
 .icon-link:hover {
