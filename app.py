@@ -21,6 +21,15 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 # Initialiseer de AI client met de verborgen sleutel
 ai_client = genai.Client(api_key=API_KEY)
 
+# --- CONFIGURATIE LIMIETEN ---
+MAX_NAME_LENGTH = 50
+MAX_EMAIL_LENGTH = 100
+MAX_PASSWORD_LENGTH = 128
+MAX_PROJECT_TITLE_LENGTH = 100
+MAX_PROJECT_DESC_LENGTH = 1000
+MAX_URL_LENGTH = 255
+MAX_COMMENT_LENGTH = 500
+
 # Configureer logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -299,6 +308,20 @@ def upload_project():
             flash("Vul een titel en beschrijving in om je project te uploaden.", "error")
             return render_template('upload_project.html')
 
+        # Validatie van tekstlengte
+        if len(title) > MAX_PROJECT_TITLE_LENGTH:
+            flash(f"Titel mag maximaal {MAX_PROJECT_TITLE_LENGTH} tekens zijn.", "error")
+            return render_template('upload_project.html')
+        if len(description) > MAX_PROJECT_DESC_LENGTH:
+            flash(f"Omschrijving mag maximaal {MAX_PROJECT_DESC_LENGTH} tekens zijn.", "error")
+            return render_template('upload_project.html')
+        if link and len(link) > MAX_URL_LENGTH:
+            flash(f"Link mag maximaal {MAX_URL_LENGTH} tekens zijn.", "error")
+            return render_template('upload_project.html')
+        if github_link and len(github_link) > MAX_URL_LENGTH:
+            flash(f"GitHub link mag maximaal {MAX_URL_LENGTH} tekens zijn.", "error")
+            return render_template('upload_project.html')
+
         # --- HIER STAAT JE GEWELDIGE AI LOGICA ---
         ai_score, ai_feedback = evaluate_project_with_ai(title, description, link, github_link)
 
@@ -354,6 +377,10 @@ def project_comment(project_id):
         return redirect(request.referrer or url_for('index'))
 
     comment = request.form.get('comment', '').strip()
+    if len(comment) > MAX_COMMENT_LENGTH:
+        flash(f"Commentaar mag maximaal {MAX_COMMENT_LENGTH} tekens bevatten.", "error")
+        return redirect(request.referrer or url_for('index'))
+
     conn = get_db_connection()
     db = conn.cursor()
     project = db.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
@@ -382,6 +409,14 @@ def register():
         if not name or not email or not password:
             return render_template('register.html', error="Vul alle velden in!")
             
+        # Validatie van tekstlengte
+        if len(name) > MAX_NAME_LENGTH:
+            return render_template('register.html', error=f"Naam mag maximaal {MAX_NAME_LENGTH} tekens zijn.")
+        if len(email) > MAX_EMAIL_LENGTH:
+            return render_template('register.html', error=f"E-mailadres is te lang.")
+        if len(password) > MAX_PASSWORD_LENGTH:
+            return render_template('register.html', error=f"Wachtwoord is te lang.")
+
         hash_veilig = generate_password_hash(password)
         
         conn = get_db_connection()
@@ -485,6 +520,9 @@ def forgot_password():
         if not email:
             return render_template('forgot_password.html', error="Vul je e-mailadres in!")
             
+        if len(email) > MAX_EMAIL_LENGTH:
+            return render_template('forgot_password.html', error="E-mailadres is te lang!")
+
         conn = get_db_connection()
         db = conn.cursor()
         user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
@@ -530,6 +568,9 @@ def reset_password(token):
         if password != confirm_password:
             return render_template('reset_password.html', token=token, error="Wachtwoorden komen niet overeen!")
             
+        if len(password) > MAX_PASSWORD_LENGTH:
+            return render_template('reset_password.html', token=token, error=f"Wachtwoord mag maximaal {MAX_PASSWORD_LENGTH} tekens zijn.")
+
         hash_veilig = generate_password_hash(password)
         
         conn = get_db_connection()
@@ -604,6 +645,11 @@ def profile():
             conn.close()
             return render_template('profile.html', user=user, error="Naam mag niet leeg zijn!")
             
+        if len(new_name) > MAX_NAME_LENGTH:
+            user = db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],)).fetchone()
+            conn.close()
+            return render_template('profile.html', user=user, error=f"Naam mag maximaal {MAX_NAME_LENGTH} tekens zijn!")
+
         db.execute("UPDATE users SET name = ? WHERE id = ?", (new_name, session['user_id']))
         conn.commit()
         session['user_name'] = new_name
