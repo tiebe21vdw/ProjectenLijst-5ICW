@@ -1,7 +1,11 @@
 import sqlite3
+import os
 
 # Maak verbinding met je database
-conn = sqlite3.connect('registrants.db')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_PATH = os.path.join(BASE_DIR, 'registrants.db')
+
+conn = sqlite3.connect(DATABASE_PATH)
 db = conn.cursor()
 
 # VUL HIER HET E-MAILADRES IN WAARMEE JE GEBRUIKER IS ANGEMAAKT:

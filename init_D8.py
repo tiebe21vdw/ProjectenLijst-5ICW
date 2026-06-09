@@ -1,7 +1,11 @@
 import sqlite3
+import os
 
 def init_db():
-    conn = sqlite3.connect('registrants.db')
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DATABASE_PATH = os.path.join(BASE_DIR, 'registrants.db')
+    
+    conn = sqlite3.connect(DATABASE_PATH)
     db = conn.cursor()
     db.execute('DROP TABLE IF EXISTS users') # Let op: wist tijdelijk je oude test-accounts weer even
     db.execute('''

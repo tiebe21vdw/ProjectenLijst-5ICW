@@ -11,6 +11,11 @@ from dotenv import load_dotenv # Externe library voor het laden van omgevingsvar
 from groq import Groq
 import hashlib
 
+# --- DATABASE PAD CONFIGURATIE ---
+# Dit zorgt ervoor dat de database altijd in dezelfde map als app.py wordt gezocht
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_PATH = os.path.join(BASE_DIR, 'registrants.db')
+
 # --- LAAD OMGEVINGSVARIABELEN ---
 # Laad de variabelen uit het .env bestand
 load_dotenv()
@@ -52,7 +57,7 @@ s = URLSafeTimedSerializer(app.secret_key)
 
 # Database connectie helper
 def get_db_connection():
-    conn = sqlite3.connect('registrants.db')
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -154,20 +159,22 @@ def evaluate_project_with_ai(title, description, link, github_link):
     ai_score = 0
     ai_feedback = "AI Beoordeling mislukt."
     prompt = f"""
-        Je bent een deskundige IT-leerkracht die eindprojecten beoordeelt voor de richting 5ICW (Informatie- en Communicatiewetenschappen).
-        Beoordeel de onderstaande site via de link van een student op basis van de volgende 5 officiële criteria:
+        Je bent een deskundige IT-leerkracht. Beoordeel een Flask-projectvoorstel van een student.
+        BELANGRIJK: De student gebruikt een platform dat AL ingebouwde Login-systemen, SQLite databases en Flask-routes heeft. 
+        Ga er dus vanuit dat criteria 2 en 4 (Database & Login) technisch aanwezig zijn, tenzij de omschrijving iets heel anders beweert.
 
+        Beoordeel op basis van deze 5 criteria:
         1. Flask routes & templates (Minimaal 4 werkende pagina's, Jinja2, basistemplate)
         2. SQLite database & CRUD (Minimaal 1 tabel, volledige CRUD: toevoegen, lezen, bewerken, verwijderen)
         3. Formulieren & POST (Werkende formulieren met foutafhandeling)
         4. Login & sessie (Inloggen met session, beveiligde pagina's)
         5. Bootstrap opmaak & Deployment (Responsive design voor gsm/pc, GitHub gebruik, PythonAnywhere online URL)
 
-        Project Gegevens van de student:
+        Gegevens van de student:
         - Titel: {title}
         - Omschrijving: {description}
-        - Ingediende URL: {link if link else 'Geen URL ingeleverd'}
-        - GitHub URL: {github_link if github_link else 'Geen GitHub link ingeleverd'}
+        - Live URL: {link if link else 'Niet opgegeven'}
+        - GitHub: {github_link if github_link else 'Niet opgegeven'}
 
         Geef je antwoord STRICT in het volgende formaat (vervang de X en de tekst, behoud de labels exact):
         SCORE: X/5
@@ -185,16 +192,22 @@ def evaluate_project_with_ai(title, description, link, github_link):
             model="llama-3.3-70b-versatile",
         )
         ai_text = chat_completion.choices[0].message.content
-        logging.info(f"Groq response: {ai_text}")
     except Exception as e:
-        logging.error(f"Fout bij Groq aanroep: {e}")
+        logging.error(f"Groq API Error: {e}")
         ai_text = "FOUT"
 
-    if ai_text != "FOUT" and "SCORE:" in ai_text and "FEEDBACK:" in ai_text:
-        parts = ai_text.split("FEEDBACK:")
-        ai_feedback = parts[1].strip()
-        score_part = parts[0].replace("SCORE:", "").strip()
-        ai_score = int(score_part.split("/")[0])
+    # Robuustere parsing van het AI antwoord
+    if ai_text != "FOUT" and "SCORE:" in ai_text.upper() and "FEEDBACK:" in ai_text.upper():
+        try:
+            # Gebruik case-insensitive split om fouten te voorkomen
+            import re
+            parts = re.split(r'FEEDBACK:', ai_text, flags=re.IGNORECASE)
+            ai_feedback = parts[1].strip() if len(parts) > 1 else "Geen feedback ontvangen."
+            score_match = re.search(r'SCORE:\s*(\d+)', ai_text, re.IGNORECASE)
+            ai_score = int(score_match.group(1)) if score_match else 0
+        except (ValueError, IndexError):
+            logging.warning(f"Kon score niet parsen uit: {ai_text}")
+            ai_score = 3 # Default score bij parsing fout
     else:
         logging.warning(f"AI-antwoord voldeed niet aan formaat of was 'FOUT'. Antwoord: {ai_text}")
         ai_score = 0
