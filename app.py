@@ -7,8 +7,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 import os
 import logging
-from dotenv import load_dotenv # Standaard python library voor systeemfuncties, zoals het lezen van omgevingsvariabelen
-from google import genai # Laadt het .env bestand in
+from dotenv import load_dotenv # Externe library voor het laden van omgevingsvariabelen uit .env
+from groq import Groq
 import hashlib
 
 # --- LAAD OMGEVINGSVARIABELEN ---
@@ -16,10 +16,10 @@ import hashlib
 load_dotenv()
 
 # Haal de sleutel veilig op uit de achtergrond van de computer
-API_KEY = os.getenv("GEMINI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # Initialiseer de AI client met de verborgen sleutel
-ai_client = genai.Client(api_key=API_KEY)
+groq_client = Groq(api_key=GROQ_API_KEY)
 
 # --- CONFIGURATIE LIMIETEN ---
 MAX_NAME_LENGTH = 50
@@ -175,24 +175,20 @@ def evaluate_project_with_ai(title, description, link, github_link):
         """
 
     try:
-        response = ai_client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
+        chat_completion = groq_client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model="llama-3.3-70b-versatile",
         )
-        ai_text = response.text
-        logging.info(f"Gemini 2.5-flash response: {ai_text}")
+        ai_text = chat_completion.choices[0].message.content
+        logging.info(f"Groq response: {ai_text}")
     except Exception as e:
-        logging.error(f"Fout bij Gemini 2.5-flash aanroep: {e}")
-        try:
-            response = ai_client.models.generate_content(
-                model='gemini-1.5-flash',
-                contents=prompt,
-            )
-            ai_text = response.text
-            logging.info(f"Gemini 1.5-flash response: {ai_text}")
-        except Exception as e_fallback:
-            logging.error(f"Fout bij Gemini 1.5-flash aanroep (fallback): {e_fallback}")
-            ai_text = "FOUT"
+        logging.error(f"Fout bij Groq aanroep: {e}")
+        ai_text = "FOUT"
 
     if ai_text != "FOUT" and "SCORE:" in ai_text and "FEEDBACK:" in ai_text:
         parts = ai_text.split("FEEDBACK:")
@@ -202,7 +198,7 @@ def evaluate_project_with_ai(title, description, link, github_link):
     else:
         logging.warning(f"AI-antwoord voldeed niet aan formaat of was 'FOUT'. Antwoord: {ai_text}")
         ai_score = 0
-        ai_feedback = "De AI-servers van Google waren tijdelijk onbereikbaar. Probeer je projectomschrijving dadelijk nog eens te updaten of in te dienen."
+        ai_feedback = "De AI-servers van Groq waren tijdelijk onbereikbaar. Probeer je projectomschrijving dadelijk nog eens te updaten of in te dienen."
 
     return ai_score, ai_feedback
 
